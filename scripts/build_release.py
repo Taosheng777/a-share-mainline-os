@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import subprocess
+import tarfile
 from pathlib import Path
 
 
@@ -27,7 +29,30 @@ def main() -> int:
         cwd=ROOT,
         check=True,
     )
+    expected = {
+        f"{args.prefix}README.md",
+        f"{args.prefix}LICENSE",
+        f"{args.prefix}NOTICE",
+        f"{args.prefix}CHANGELOG.md",
+        f"{args.prefix}.agents/plugins/marketplace.json",
+        f"{args.prefix}.claude-plugin/marketplace.json",
+    }
+    with tarfile.open(output, "r:gz") as archive:
+        names = set(archive.getnames())
+    missing = sorted(expected - names)
+    if missing:
+        raise SystemExit(f"发行归档缺文件：{missing}")
+    forbidden = ("__pycache__", ".pyc", "/outputs/", "/.env")
+    leaked = sorted(name for name in names if any(item in name for item in forbidden))
+    if leaked:
+        raise SystemExit(f"发行归档含本地产物：{leaked[:5]}")
+
+    digest = hashlib.sha256(output.read_bytes()).hexdigest()
+    checksum = output.with_name(output.name + ".sha256")
+    checksum.write_text(f"{digest}  {output.name}\n", encoding="utf-8")
     print(output)
+    print(checksum)
+    print(f"sha256={digest}")
     return 0
 
 

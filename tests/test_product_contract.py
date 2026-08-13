@@ -34,6 +34,9 @@ class ProductContract(unittest.TestCase):
             ROOT / "adapters/shared/a_stock_data_upstream_smoke.py",
             ROOT / ".github/workflows/ci.yml",
             ROOT / ".github/workflows/live-smoke.yml",
+            ROOT / "CHANGELOG.md",
+            ROOT / "CONTRIBUTING.md",
+            ROOT / "docs/v0.1-beta-发布说明.md",
         ):
             self.assertTrue(path.is_file(), path)
 
@@ -176,11 +179,18 @@ class ProductContract(unittest.TestCase):
                         self.assertNotIn(token, text, str(path))
 
     def test_release_archive_excludes_local_artifacts(self):
-        if not (ROOT / "CHANGELOG.md").is_file():
+        import subprocess
+
+        tracked = subprocess.run(
+            ["git", "cat-file", "-e", "HEAD:CHANGELOG.md"],
+            cwd=ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if tracked.returncode != 0:
             self.skipTest("release archive is checked after the release commit exists")
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "release.tar.gz"
-            import subprocess
 
             subprocess.run(
                 ["python3", str(ROOT / "scripts/build_release.py"), "--output", str(output)],
@@ -188,6 +198,9 @@ class ProductContract(unittest.TestCase):
                 cwd=ROOT,
             )
             self.assertTrue(output.is_file())
+            checksum = output.with_name(output.name + ".sha256")
+            self.assertTrue(checksum.is_file())
+            self.assertIn(output.name, checksum.read_text(encoding="utf-8"))
 
     def test_ci_and_live_smoke_stay_separate(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")

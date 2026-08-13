@@ -94,3 +94,5 @@ Original code and documentation in this repository are licensed under the [MIT L
 No market data, filings, research reports, news content, credentials, API keys, brokerage screenshots, or private account data are distributed. Public web endpoints are not a grant of official API or redistribution rights; interfaces may change, be rate-limited, or fail. Users are responsible for provider terms, permissions, and request frequency.
 
 Run `python3 scripts/run_ci.py` to reproduce the offline release gate. The scheduled `Live smoke` only checks the pinned `a-stock-data` upstream revision and a public Tencent quote path. A failure preserves logs and opens an issue, but does not block offline CI or a release.
+
+Contributions must follow [CONTRIBUTING.md](CONTRIBUTING.md). Report credential, private-data, path-traversal, or command-injection issues privately as described in [SECURITY.md](SECURITY.md).
