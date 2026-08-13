@@ -20,6 +20,8 @@ def load(path: Path) -> dict:
 
 
 def main() -> int:
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    assert SEMVER.fullmatch(version)
     codex_plugin = ROOT / "plugins/a-share-mainline-os-codex"
     claude_plugin = ROOT / "plugins/a-share-mainline-os-claude"
     codex = load(codex_plugin / ".codex-plugin/plugin.json")
@@ -28,13 +30,14 @@ def main() -> int:
     claude_market = load(ROOT / ".claude-plugin/marketplace.json")
 
     assert codex["name"] == claude["name"] == "a-share-mainline-os"
-    assert codex["version"] == claude["version"]
-    assert SEMVER.fullmatch(codex["version"])
+    assert codex["version"] == claude["version"] == version
+    assert claude_market["metadata"]["version"] == version
+    assert claude_market["plugins"][0]["version"] == version
     assert codex["skills"] == claude["skills"] == "./skills/"
     assert codex_market["plugins"][0]["source"]["path"].endswith("-codex")
     assert claude_market["plugins"][0]["source"].endswith("-claude")
 
-    for plugin in (codex_plugin, claude_plugin):
+    for plugin in (codex_plugin, claude_plugin, ROOT / "src"):
         for skill in ("stock-daily", "stock-screener", "stock-buddy"):
             text = (plugin / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
             assert text.startswith("---\n")

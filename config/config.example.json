@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "vault_root": "__VAULT_ROOT__",
   "git_identity": {
     "default": "[ai]",

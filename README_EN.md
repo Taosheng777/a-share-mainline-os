@@ -54,6 +54,15 @@ The tested local installers are also available:
 bash adapters/codex/install.sh   # or: bash adapters/claude/install.sh
 ```
 
+Preview and perform an explicit upgrade with:
+
+```bash
+bash adapters/codex/install.sh --upgrade --dry-run
+bash adapters/codex/install.sh --upgrade
+```
+
+The upgrade replaces only the three Skills and creates one batch backup. It never reads or modifies the user config or vault. See [Upgrade and rollback](docs/升级与回滚.md), then run `python3 scripts/doctor.py --platform codex` for a read-only readiness check.
+
 Create an empty vault and configuration:
 
 ```bash
@@ -84,6 +93,8 @@ To reproduce the clean-environment contract locally:
 ```bash
 python3 scripts/cold_start.py
 ```
+
+Both platform distributions are deterministically exported from the public canonical source in `src/skills/`. A public clone can verify both generated trees with `python3 scripts/export_from_source.py --check`; no maintainer-private directory is required.
 
 ## Data and licensing boundary
 

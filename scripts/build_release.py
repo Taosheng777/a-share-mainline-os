@@ -11,12 +11,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--prefix", default="a-share-mainline-os-v0.1-beta/")
+    parser.add_argument("--prefix", default=f"a-share-mainline-os-v{VERSION}/")
     return parser.parse_args()
 
 
@@ -30,6 +31,7 @@ def main() -> int:
         check=True,
     )
     expected = {
+        f"{args.prefix}VERSION",
         f"{args.prefix}README.md",
         f"{args.prefix}LICENSE",
         f"{args.prefix}NOTICE",

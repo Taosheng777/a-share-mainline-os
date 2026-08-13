@@ -56,7 +56,14 @@ Claude Code marketplace：
 bash adapters/codex/install.sh   # 或 bash adapters/claude/install.sh
 ```
 
-安装器默认拒绝覆盖同名 Skill。确需升级时，先确认自动备份位置，再设置 `ASM_FORCE_INSTALL=1`。
+安装器默认拒绝覆盖同名 Skill。升级前先预览，再显式执行：
+
+```bash
+bash adapters/codex/install.sh --upgrade --dry-run
+bash adapters/codex/install.sh --upgrade
+```
+
+Claude Code 用户替换为 `adapters/claude/install.sh`。升级只替换三个 Skill，使用同一批次备份，不读取或修改用户 config 与 vault；回滚方法见[升级与回滚](docs/升级与回滚.md)。旧的 `ASM_FORCE_INSTALL=1` 仍兼容，但推荐使用显式参数。
 
 ### 2. 建立空 vault 与配置
 
@@ -85,6 +92,12 @@ Claude Code 用户把目标改为 `$HOME/.claude/skills/a-stock-data`。安装�
 - `为我已立项的主线筛选 ETF 和龙头股`
 - `用 stock-buddy 体检这条主线`
 
+首次配置后运行只读检查：
+
+```bash
+python3 scripts/doctor.py --platform codex
+```
+
 更完整的逐步说明见 [五分钟上手](docs/五分钟上手.md)。本地可重复冷启动检查：
 
 ```bash
@@ -111,6 +124,7 @@ plugins/
   a-share-mainline-os-codex/     Codex 插件根与 skills/
   a-share-mainline-os-claude/    Claude Code 插件根与 skills/
 adapters/                        安装器与外部数据薄适配
+src/skills/                      公开 canonical 业务基线（Claude-compatible）
 vault-template/                  脱敏空壳与契约测试
 docs/                            设计、生命周期、配置与许可证说明
 examples/                        纯虚构输出样例
@@ -118,7 +132,7 @@ scripts/                         冷启动、固定源导出与发行构建
 tests/                           产品发布契约
 ```
 
-两个平台版本由同一个已提交业务源 revision 和同一份白名单确定性导出；平台工具名只在导出适配层变化。
+两个平台版本由仓库内 `src/skills/` 和同一份白名单确定性导出；平台工具名只在导出适配层变化。任何公开 clone 都可运行 `python3 scripts/export_from_source.py --check` 验证分发树，不依赖作者私人目录。
 
 ## 许可证与第三方边界
 

@@ -1,0 +1,38 @@
+name: 安装与升级反馈
+description: 报告首次安装、升级、回滚或 doctor 问题
+title: "[install] "
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传 API Key、cookie、账户资料、真实持仓、券商截图或私人绝对路径。
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options:
+        - Codex
+        - Claude Code
+        - 两者都有
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本或 commit
+      placeholder: 例如 0.2.0-beta.1
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor 输出
+      description: 请先删除私人路径与任何凭据。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤与实际结果
+    validations:
+      required: true

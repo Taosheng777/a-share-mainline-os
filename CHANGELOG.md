@@ -2,6 +2,20 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。首个公开版本仍为 beta，接口和工作流可能在用户反馈后调整。
 
+## [0.2.0-beta.1] - 2026-08-14
+
+### 新增
+
+- 公开 canonical source `src/skills/` 与双平台逐字节再生检查。
+- 统一版本事实源、安全升级/回滚安装器和只读环境 doctor。
+- 升级与回滚文档、安装反馈/功能建议 Issue 表单、macOS 安装 smoke。
+
+### 变更
+
+- Git tag、插件、marketplace、冷启动与发行归档统一使用完整语义版本。
+- 公开构建不再依赖作者私人 Skill 仓库或私人 Git revision。
+- 用户 config 与 vault 明确采用永不自动覆盖策略。
+
 ## [0.1.0-beta.1] - 2026-08-13
 
 ### 新增
@@ -20,4 +34,5 @@
 - 自有代码与文档采用 MIT；`a-stock-data` 作为 Apache-2.0 外部依赖，不复制、不修改、不再分发其源码。
 - README、三个 Skill 的固定输出和脚本化 JSON/HTML 输出统一携带研究边界、非投顾、不构成投资建议、不代下单、风险自担及运行时数据口径。
 
+[0.2.0-beta.1]: https://github.com/Taosheng777/a-share-mainline-os/releases/tag/v0.2.0-beta.1
 [0.1.0-beta.1]: https://github.com/Taosheng777/a-share-mainline-os/releases/tag/v0.1-beta
