@@ -1,0 +1,4 @@
+interface:
+  display_name: "复盘"
+  short_description: "判定盘面环境、更新主线状态并按纪律卡做持仓对照"
+  default_prompt: "使用 $stock-daily 执行最新交易日复盘，走完五区流程并报告阻塞项。"

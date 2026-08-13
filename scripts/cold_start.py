@@ -14,6 +14,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 VAULT_TEMPLATE = ROOT / "vault-template"
 
 
@@ -95,6 +96,7 @@ def prepare_environment(base: Path) -> tuple[dict[str, str], Path, Path, Path]:
     config.write_text(
         json.dumps(
             {
+                "schema_version": 1,
                 "vault_root": str(vault),
                 "wencai_cli": str(fake_cli),
                 "git_identity": {"default": "[ai]", "codex": "[ai:codex]"},
@@ -182,7 +184,7 @@ def main() -> int:
             )
             plugin_payload = json.loads(plugin.stdout)
             plugin_version = plugin_payload.get("version")
-            if plugin_version != "0.1.0-beta.1":
+            if plugin_version != VERSION:
                 raise RuntimeError("Codex marketplace 未安装预期插件版本")
 
         run(

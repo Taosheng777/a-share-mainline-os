@@ -1,6 +1,4 @@
 {
-  "source_repo": "~/.claude/skills",
-  "source_revision": "5184f6fd32fff98f3bb1d15de59a54d9bd49fd16",
   "files": [
     "stock-buddy/SKILL.md",
     "stock-buddy/agents/chief-analyst.md",

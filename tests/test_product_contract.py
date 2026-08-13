@@ -6,16 +6,19 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION_FILE = ROOT / "VERSION"
 CLAUDE_PLUGIN = ROOT / "plugins/a-share-mainline-os-claude"
 CODEX_PLUGIN = ROOT / "plugins/a-share-mainline-os-codex"
 CLAUDE_SKILLS = CLAUDE_PLUGIN / "skills"
 CODEX_SKILLS = CODEX_PLUGIN / "skills"
+SOURCE_SKILLS = ROOT / "src/skills"
 VAULT = ROOT / "vault-template"
 
 
 class ProductContract(unittest.TestCase):
     def test_required_repository_structure_exists(self):
         for path in (
+            VERSION_FILE,
             ROOT / ".claude-plugin/marketplace.json",
             ROOT / ".agents/plugins/marketplace.json",
             CLAUDE_PLUGIN / ".claude-plugin/plugin.json",
@@ -28,6 +31,8 @@ class ProductContract(unittest.TestCase):
             ROOT / "adapters/codex/install.sh",
             ROOT / "config/config.example.json",
             ROOT / "scripts/cold_start.py",
+            ROOT / "scripts/doctor.py",
+            ROOT / "scripts/manage_install.py",
             ROOT / "scripts/export_from_source.py",
             ROOT / "adapters/shared/install_a_stock_data.py",
             ROOT / "adapters/shared/a_stock_data_smoke.py",
@@ -37,6 +42,10 @@ class ProductContract(unittest.TestCase):
             ROOT / "CHANGELOG.md",
             ROOT / "CONTRIBUTING.md",
             ROOT / "docs/v0.1-beta-发布说明.md",
+            ROOT / "docs/v0.2.0-beta.1-发布说明.md",
+            ROOT / "docs/升级与回滚.md",
+            ROOT / ".github/ISSUE_TEMPLATE/installation.yml",
+            ROOT / ".github/ISSUE_TEMPLATE/feature.yml",
         ):
             self.assertTrue(path.is_file(), path)
 
@@ -45,6 +54,7 @@ class ProductContract(unittest.TestCase):
             self.assertTrue((CODEX_SKILLS / skill / "SKILL.md").is_file(), skill)
 
     def test_manifests_have_consistent_identity(self):
+        version = VERSION_FILE.read_text(encoding="utf-8").strip()
         codex = json.loads((CODEX_PLUGIN / ".codex-plugin/plugin.json").read_text())
         claude = json.loads((CLAUDE_PLUGIN / ".claude-plugin/plugin.json").read_text())
         codex_market = json.loads(
@@ -56,8 +66,11 @@ class ProductContract(unittest.TestCase):
 
         self.assertEqual(codex["name"], "a-share-mainline-os")
         self.assertEqual(claude["name"], codex["name"])
-        self.assertEqual(codex["version"], "0.1.0-beta.1")
+        self.assertRegex(version, r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$")
+        self.assertEqual(codex["version"], version)
         self.assertEqual(claude["version"], codex["version"])
+        self.assertEqual(claude_market["metadata"]["version"], version)
+        self.assertEqual(claude_market["plugins"][0]["version"], version)
         self.assertEqual(claude["skills"], "./skills/")
         self.assertEqual(codex["skills"], "./skills/")
         self.assertEqual(
@@ -72,7 +85,9 @@ class ProductContract(unittest.TestCase):
     def test_export_manifest_matches_public_skill_tree(self):
         manifest = json.loads((ROOT / "config/export-manifest.json").read_text())
         expected = set(manifest["files"])
-        for root in (CLAUDE_SKILLS, CODEX_SKILLS):
+        self.assertNotIn("source_repo", manifest)
+        self.assertNotIn("source_revision", manifest)
+        for root in (SOURCE_SKILLS, CLAUDE_SKILLS, CODEX_SKILLS):
             actual = {
                 path.relative_to(root).as_posix()
                 for path in root.rglob("*")
@@ -81,6 +96,15 @@ class ProductContract(unittest.TestCase):
             self.assertEqual(actual, expected)
             self.assertTrue(all(not path.endswith(".pyc") for path in actual))
             self.assertTrue(all("__pycache__" not in path for path in actual))
+
+    def test_public_source_reproduces_both_plugin_trees(self):
+        import subprocess
+
+        subprocess.run(
+            ["python3", str(ROOT / "scripts/export_from_source.py"), "--check"],
+            cwd=ROOT,
+            check=True,
+        )
 
     def test_skill_frontmatter_and_codex_metadata(self):
         for skill in ("stock-daily", "stock-screener", "stock-buddy"):
@@ -113,9 +137,15 @@ class ProductContract(unittest.TestCase):
             "05-主线追踪/_主线页模板.md",
             "05-主线追踪/归档/_退潮判定台账.md",
             ".tests/test_vault_contract.py",
+            ".a-share-mainline-os.json",
         )
         for relative in required:
             self.assertTrue((VAULT / relative).is_file(), relative)
+
+        metadata = json.loads((VAULT / ".a-share-mainline-os.json").read_text())
+        self.assertEqual(metadata["schema_version"], 1)
+        self.assertEqual(metadata["template_version"], VERSION_FILE.read_text().strip())
+        self.assertEqual(metadata["update_policy"], "never-overwrite-user-vault")
 
         discipline = (VAULT / "01-纪律卡.md").read_text(encoding="utf-8")
         for label in ("① 主线失效退出", "② 单笔止损线", "③ 账户回撤熔断"):
@@ -128,6 +158,7 @@ class ProductContract(unittest.TestCase):
 
     def test_config_example_is_portable(self):
         config = json.loads((ROOT / "config/config.example.json").read_text())
+        self.assertEqual(config["schema_version"], 1)
         self.assertEqual(config["vault_root"], "__VAULT_ROOT__")
         self.assertEqual(config["git_identity"]["default"], "[ai]")
         self.assertNotIn("wencai_cli", config)
@@ -180,15 +211,16 @@ class ProductContract(unittest.TestCase):
 
     def test_release_archive_excludes_local_artifacts(self):
         import subprocess
+        import tarfile
 
         tracked = subprocess.run(
-            ["git", "cat-file", "-e", "HEAD:CHANGELOG.md"],
+            ["git", "cat-file", "-e", "HEAD:VERSION"],
             cwd=ROOT,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         if tracked.returncode != 0:
-            self.skipTest("release archive is checked after the release commit exists")
+            self.skipTest("release archive is checked after VERSION is committed")
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "release.tar.gz"
 
@@ -201,11 +233,22 @@ class ProductContract(unittest.TestCase):
             checksum = output.with_name(output.name + ".sha256")
             self.assertTrue(checksum.is_file())
             self.assertIn(output.name, checksum.read_text(encoding="utf-8"))
+            version = VERSION_FILE.read_text(encoding="utf-8").strip()
+            prefix = f"a-share-mainline-os-v{version}"
+            with tarfile.open(output, "r:gz") as archive:
+                self.assertTrue(
+                    all(
+                        name == prefix or name.startswith(prefix + "/")
+                        for name in archive.getnames()
+                    )
+                )
 
     def test_ci_and_live_smoke_stay_separate(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         live = (ROOT / ".github/workflows/live-smoke.yml").read_text(encoding="utf-8")
         self.assertIn("scripts/run_ci.py", ci)
+        self.assertIn("runs-on: macos-14", ci)
+        self.assertIn("scripts/cold_start.py --skip-codex-plugin", ci)
         self.assertNotIn("schedule:", ci)
         self.assertNotIn("a_stock_data_upstream_smoke.py", ci)
         self.assertIn("schedule:", live)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock Buddy"
+  short_description: "主线论证、持仓体检、目标区间与风险预算仓位建议"
+  default_prompt: "使用 $stock-buddy 分析指定主线或持仓；我明确开启金融专家模式时，运行五个 sub-agent。"
