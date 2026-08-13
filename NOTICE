@@ -1,0 +1,35 @@
+a-share-mainline-os
+Copyright (c) 2026 Taosheng777
+
+Third-party notice / 第三方声明
+================================
+
+This project interoperates with simonlin1212/a-stock-data, licensed under
+the Apache License 2.0. The a-stock-data source code is not included in,
+modified by, or redistributed with this repository.
+
+本项目与 simonlin1212/a-stock-data 互操作。该项目采用 Apache License 2.0；
+本仓库不包含、不修改、也不再分发其源码。
+
+Upstream / 上游主页:
+https://github.com/simonlin1212/a-stock-data
+
+Upstream license / 上游许可证:
+https://github.com/simonlin1212/a-stock-data/blob/main/LICENSE
+
+Author / 作者: Simon Lin
+
+Data and service boundary / 数据与服务边界
+================================================
+
+The software may connect, at the user's direction, to third-party market,
+filing, research, and news services. No third-party data, account credential,
+API key, or private local dataset is included in this repository. Access and
+use remain subject to each provider's terms, rate limits, and permissions.
+Names and trademarks belong to their respective owners. No affiliation or
+endorsement is implied.
+
+本软件可按用户配置访问第三方行情、公告、研报和新闻服务。本仓库不附带任何
+第三方数据、账户凭据、API Key 或私人本地数据集。访问与使用仍受各服务方条款、
+频率限制和授权范围约束；相关名称与商标归各自权利人所有。本项目不暗示与这些
+服务方存在隶属、合作或背书关系。

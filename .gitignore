@@ -1,0 +1,17 @@
+# 本机配置与凭据
+config.json
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Python / Node 本地环境
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+
+# 运行产物与系统文件
+outputs/
+.DS_Store
