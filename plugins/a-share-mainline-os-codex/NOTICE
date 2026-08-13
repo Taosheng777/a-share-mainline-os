@@ -1,0 +1,11 @@
+a-share-mainline-os · Codex distribution
+Copyright (c) 2026 Taosheng777
+
+This plugin interoperates with the external project simonlin1212/a-stock-data,
+licensed under Apache License 2.0 and authored by Simon Lin. Upstream source is
+not included or redistributed with this plugin.
+
+https://github.com/simonlin1212/a-stock-data
+
+No third-party market data, credentials, API keys, or private datasets are
+included. Third-party access remains subject to provider terms and permissions.

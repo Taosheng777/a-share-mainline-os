@@ -1,0 +1,8 @@
+{
+  "vault_root": "__VAULT_ROOT__",
+  "git_identity": {
+    "default": "[ai]",
+    "claude": "[ai:claude]",
+    "codex": "[ai:codex]"
+  }
+}

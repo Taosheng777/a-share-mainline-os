@@ -1,0 +1,20 @@
+{
+  "name": "a-share-mainline-os",
+  "description": "A 股主线生命周期研究与决策支持 Skills：复盘、载体筛选与双档分析。",
+  "version": "0.1.0-beta.1",
+  "author": {
+    "name": "Taosheng777",
+    "url": "https://github.com/Taosheng777"
+  },
+  "homepage": "https://github.com/Taosheng777/a-share-mainline-os",
+  "repository": "https://github.com/Taosheng777/a-share-mainline-os",
+  "license": "MIT",
+  "keywords": [
+    "a-share",
+    "china-stocks",
+    "mainline-research",
+    "decision-support",
+    "claude-code"
+  ],
+  "skills": "./skills/"
+}

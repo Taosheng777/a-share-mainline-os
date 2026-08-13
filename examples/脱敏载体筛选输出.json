@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "title": "离线示例",
+  "date": "YYYY-MM-DD",
+  "report_label": "demo",
+  "disclaimer": "本工具仅用于研究与决策支持；提供方非持牌证券投资咨询机构，本工具及其输出不构成投资建议，不代下单，使用者风险自担。数据来源：离线虚构 fixture；数据日：YYYY-MM-DD，均以本次运行输出为准。",
+  "top": [
+    {
+      "code": "111111.SH",
+      "name": "示例甲",
+      "score": 100.0
+    },
+    {
+      "code": "222222.SZ",
+      "name": "示例乙",
+      "score": 0.0
+    }
+  ]
+}

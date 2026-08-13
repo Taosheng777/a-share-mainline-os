@@ -1,0 +1,33 @@
+{
+  "source_repo": "~/.claude/skills",
+  "source_revision": "5184f6fd32fff98f3bb1d15de59a54d9bd49fd16",
+  "files": [
+    "stock-buddy/SKILL.md",
+    "stock-buddy/agents/chief-analyst.md",
+    "stock-buddy/agents/fund-flow-agent.md",
+    "stock-buddy/agents/fundamental-industry-agent.md",
+    "stock-buddy/agents/news-research-agent.md",
+    "stock-buddy/agents/openai.yaml",
+    "stock-buddy/agents/risk-agent.md",
+    "stock-buddy/agents/technical-agent.md",
+    "stock-buddy/references/decision-support.md",
+    "stock-buddy/references/discipline.md",
+    "stock-buddy/references/expert-mode.md",
+    "stock-buddy/references/mainline-workflow.md",
+    "stock-buddy/references/parsing.md",
+    "stock-buddy/references/regular-tier.md",
+    "stock-buddy/references/report-template.md",
+    "stock-buddy/references/selection-handoff.md",
+    "stock-buddy/references/skillhub-usage.md",
+    "stock-buddy/scripts/danger_scan.py",
+    "stock-buddy/tests/test_danger_scan.py",
+    "stock-daily/SKILL.md",
+    "stock-daily/agents/openai.yaml",
+    "stock-screener/SKILL.md",
+    "stock-screener/agents/openai.yaml",
+    "stock-screener/references/scoring.md",
+    "stock-screener/references/strategy-presets.md",
+    "stock-screener/scripts/screen.py",
+    "stock-screener/tests/test_screen.py"
+  ]
+}

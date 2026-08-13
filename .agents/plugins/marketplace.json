@@ -1,0 +1,20 @@
+{
+  "name": "a-share-mainline-os",
+  "interface": {
+    "displayName": "A 股主线研究"
+  },
+  "plugins": [
+    {
+      "name": "a-share-mainline-os",
+      "source": {
+        "source": "local",
+        "path": "./plugins/a-share-mainline-os-codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Education & Research"
+    }
+  ]
+}

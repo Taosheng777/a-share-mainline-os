@@ -1,0 +1,4 @@
+interface:
+  display_name: "载体筛选"
+  short_description: "为已立项主线发现 ETF 与龙头股并完成四维排序"
+  default_prompt: "使用 $stock-screener 为已立项主线筛选 ETF 与龙头股，完成相关度校验和四维排序。"

@@ -1,0 +1,37 @@
+{
+  "name": "a-share-mainline-os",
+  "version": "0.1.0-beta.1",
+  "description": "A 股主线生命周期研究与决策支持 Skills：复盘、载体筛选与双档分析。",
+  "author": {
+    "name": "Taosheng777",
+    "url": "https://github.com/Taosheng777"
+  },
+  "homepage": "https://github.com/Taosheng777/a-share-mainline-os",
+  "repository": "https://github.com/Taosheng777/a-share-mainline-os",
+  "license": "MIT",
+  "keywords": [
+    "a-share",
+    "china-stocks",
+    "mainline-research",
+    "decision-support",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "A 股主线研究",
+    "shortDescription": "复盘、筛选载体并对主线与持仓做可审计分析",
+    "longDescription": "围绕 A 股主线生命周期完成复盘、载体筛选、主线论证和持仓体检。系统将纪律、AI 建议与用户执行分层，不代下单，并在输出中保留数据来源和数据日。",
+    "developerName": "Taosheng777",
+    "category": "Education & Research",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Taosheng777/a-share-mainline-os",
+    "defaultPrompt": [
+      "执行最新交易日复盘并给出主线状态",
+      "为已立项主线筛选 ETF 和龙头股",
+      "体检指定主线或持仓并说明改判条件"
+    ]
+  }
+}
