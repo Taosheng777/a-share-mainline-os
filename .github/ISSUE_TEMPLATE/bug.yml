@@ -1,0 +1,33 @@
+name: Bug 报告
+description: 提交已脱敏、可复现的问题
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传 API Key、cookie、券商截图、持仓明细或本机绝对路径。
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 写出命令、脱敏输入和数据日。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本或 commit
+    validations:
+      required: true

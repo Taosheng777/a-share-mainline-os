@@ -146,6 +146,11 @@ def validate_daily_preflight(vault: Path, skill_root: Path) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keep", action="store_true", help="保留临时 HOME 供人工复查")
+    parser.add_argument(
+        "--skip-codex-plugin",
+        action="store_true",
+        help="仅在没有 Codex CLI 的 CI 环境跳过 marketplace 安装检查",
+    )
     args = parser.parse_args()
 
     holder = tempfile.TemporaryDirectory(prefix="a-share-mainline-cold-start-")
@@ -158,22 +163,27 @@ def main() -> int:
         install_env = dict(env, CODEX_SKILLS_DIR=str(codex_target))
         run(["bash", str(ROOT / "adapters/codex/install.sh")], env=install_env, cwd=ROOT)
 
-        codex_home = home / ".codex-plugin-test"
-        codex_home.mkdir(parents=True)
-        plugin_env = dict(env, CODEX_HOME=str(codex_home))
-        run(
-            ["codex", "plugin", "marketplace", "add", str(ROOT), "--json"],
-            env=plugin_env,
-            cwd=ROOT,
-        )
-        plugin = run(
-            ["codex", "plugin", "add", "a-share-mainline-os@a-share-mainline-os", "--json"],
-            env=plugin_env,
-            cwd=ROOT,
-        )
-        plugin_payload = json.loads(plugin.stdout)
-        if plugin_payload.get("version") != "0.1.0-beta.1":
-            raise RuntimeError("Codex marketplace 未安装预期插件版本")
+        plugin_version = "skipped"
+        if not args.skip_codex_plugin:
+            if shutil.which("codex") is None:
+                raise RuntimeError("未找到 Codex CLI；CI 可显式加 --skip-codex-plugin")
+            codex_home = home / ".codex-plugin-test"
+            codex_home.mkdir(parents=True)
+            plugin_env = dict(env, CODEX_HOME=str(codex_home))
+            run(
+                ["codex", "plugin", "marketplace", "add", str(ROOT), "--json"],
+                env=plugin_env,
+                cwd=ROOT,
+            )
+            plugin = run(
+                ["codex", "plugin", "add", "a-share-mainline-os@a-share-mainline-os", "--json"],
+                env=plugin_env,
+                cwd=ROOT,
+            )
+            plugin_payload = json.loads(plugin.stdout)
+            plugin_version = plugin_payload.get("version")
+            if plugin_version != "0.1.0-beta.1":
+                raise RuntimeError("Codex marketplace 未安装预期插件版本")
 
         run(
             [sys.executable, "-m", "unittest", "discover", "-s", ".tests", "-p", "test_*.py"],
@@ -215,7 +225,7 @@ def main() -> int:
             "config": str(config),
             "daily_preflight": daily["ok"],
             "screener_returned": payload["returned"],
-            "codex_plugin_version": plugin_payload["version"],
+            "codex_plugin_version": plugin_version,
             "personal_paths_required": False,
         }, ensure_ascii=False, indent=2))
         if args.keep:

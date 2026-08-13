@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 私密安全报告
+    url: https://github.com/Taosheng777/a-share-mainline-os/security/advisories/new
+    about: 凭据、账户材料或私人路径泄露请勿发公开 Issue

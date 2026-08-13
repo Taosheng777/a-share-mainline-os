@@ -31,6 +31,9 @@ class ProductContract(unittest.TestCase):
             ROOT / "scripts/export_from_source.py",
             ROOT / "adapters/shared/install_a_stock_data.py",
             ROOT / "adapters/shared/a_stock_data_smoke.py",
+            ROOT / "adapters/shared/a_stock_data_upstream_smoke.py",
+            ROOT / ".github/workflows/ci.yml",
+            ROOT / ".github/workflows/live-smoke.yml",
         ):
             self.assertTrue(path.is_file(), path)
 
@@ -185,6 +188,17 @@ class ProductContract(unittest.TestCase):
                 cwd=ROOT,
             )
             self.assertTrue(output.is_file())
+
+    def test_ci_and_live_smoke_stay_separate(self):
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        live = (ROOT / ".github/workflows/live-smoke.yml").read_text(encoding="utf-8")
+        self.assertIn("scripts/run_ci.py", ci)
+        self.assertNotIn("schedule:", ci)
+        self.assertNotIn("a_stock_data_upstream_smoke.py", ci)
+        self.assertIn("schedule:", live)
+        self.assertIn("workflow_dispatch:", live)
+        self.assertIn("continue-on-error: true", live)
+        self.assertIn("python -u", live)
 
 
 if __name__ == "__main__":

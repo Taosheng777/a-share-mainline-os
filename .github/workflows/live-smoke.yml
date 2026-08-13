@@ -1,0 +1,69 @@
+name: Live smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 8 * * 1-5"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  public-data-health:
+    name: Public data health (non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check a-stock-data upstream and public quote path
+        id: smoke
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python -u adapters/shared/a_stock_data_upstream_smoke.py 2>&1 | tee live-smoke.log
+          smoke_status=${PIPESTATUS[0]}
+          echo "status=${smoke_status}" >> "$GITHUB_OUTPUT"
+          exit "$smoke_status"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-smoke-${{ github.run_id }}
+          path: live-smoke.log
+          if-no-files-found: error
+          retention-days: 30
+      - name: Open or update health issue
+        if: steps.smoke.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          title="[health] a-stock-data live smoke failed"
+          body="定时在线检查失败。此工作流不阻断离线 CI 或发布。运行证据：${RUN_URL}"
+          issue_number=$(gh issue list --repo "$REPO" --state open --search "${title} in:title" --json number --jq '.[0].number // empty')
+          if [[ -n "$issue_number" ]]; then
+            gh issue comment "$issue_number" --repo "$REPO" --body "$body"
+          else
+            gh label create data-health --repo "$REPO" --color B60205 \
+              --description "自动化数据源健康检查" --force
+            gh issue create --repo "$REPO" --title "$title" --body "$body" --label data-health
+          fi
+      - name: Report non-blocking result
+        if: always()
+        shell: bash
+        run: |
+          if [[ "${{ steps.smoke.outputs.status }}" == "0" ]]; then
+            echo "Live smoke passed."
+          else
+            echo "Live smoke failed; evidence was uploaded and an issue was requested."
+          fi

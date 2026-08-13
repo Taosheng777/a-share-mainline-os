@@ -32,8 +32,18 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="a-stock-data-install-") as temp:
         checkout = Path(temp) / "repo"
+        checkout.mkdir()
+        subprocess.run(["git", "init", "--quiet", str(checkout)], check=True)
         subprocess.run(
-            ["git", "-c", "advice.detachedHead=false", "clone", "--quiet", "--depth", "1", "--branch", VERSION, UPSTREAM, str(checkout)],
+            ["git", "-C", str(checkout), "remote", "add", "origin", UPSTREAM],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(checkout), "fetch", "--quiet", "--depth", "1", "origin", COMMIT],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(checkout), "checkout", "--quiet", "--detach", "FETCH_HEAD"],
             check=True,
         )
         commit = subprocess.check_output(

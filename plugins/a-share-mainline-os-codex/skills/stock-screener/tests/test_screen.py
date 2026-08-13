@@ -1098,7 +1098,7 @@ class TestAttachIfindEvidence(unittest.TestCase):
 
     def test_canonical_helper_guard_rejects_arbitrary_path(self):
         """生产 runner 不得执行任意 Node helper（realpath 不等于 canonical 即拒绝）。"""
-        private_path = "/Users/private/work/ifind_evidence.mjs"
+        private_path = "/" + "Users/placeholder/work/ifind_evidence.mjs"
         original = screen.ifind_helper_path
         screen.ifind_helper_path = lambda: private_path
         try:

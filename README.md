@@ -129,3 +129,5 @@ tests/                           产品发布契约
 ## 参与贡献
 
 提交问题时请附复现命令、脱敏输入、实际输出和数据日，不要上传 API Key、券商截图或账户明细。安全问题见 [SECURITY.md](SECURITY.md)。
+
+离线发布门可用 `python3 scripts/run_ci.py` 一次复现。定时 `Live smoke` 只读探测固定的 `a-stock-data` 上游 revision 与腾讯免费行情主干；失败会保留日志并开 Issue，但不阻断离线 CI 或发布。

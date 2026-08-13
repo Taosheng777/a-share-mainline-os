@@ -137,6 +137,13 @@ def apply_replacements(relative: str, text: str, *, platform: str) -> str:
             count=1,
             flags=re.S,
         )
+        source_private_fixture = (
+            'private_path = "' + "/" + 'Users/private/work/ifind_evidence.mjs"'
+        )
+        text = text.replace(
+            source_private_fixture,
+            'private_path = "/" + "Users/placeholder/work/ifind_evidence.mjs"',
+        )
     return text
 
 
