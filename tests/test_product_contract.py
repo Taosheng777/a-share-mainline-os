@@ -244,6 +244,61 @@ class ProductContract(unittest.TestCase):
                     )
                 )
 
+    def test_demo_examples_are_informative_but_unmistakably_synthetic(self):
+        demos = {
+            "examples/演示复盘.md": (
+                "## ① 盘面",
+                "## ② 主线动态",
+                "## ③ 主线提名",
+                "## ④ 持仓对照",
+                "## ⑤ 次日关注",
+                "纪律② 触发",
+                "转入 警戒",
+                "不联动纪律①、不清仓",
+                "疑似误杀提示",
+                "这不是买回信号",
+                "A 股执行链未验证，证据高风险",
+                "未核对（需你报当日总资产）",
+            ),
+            "examples/演示主线页.md": (
+                "判定规则版本: double_key_v1",
+                "死亡条件 · 清仓级",
+                "死亡条件 · 警戒级",
+                "立项误报回测",
+                "## ■ 退潮复核判据（预注册）",
+                "剔除 5 日窗口内**主力净额最负的一日**",
+                "秩相关",
+                "单批噪声极大",
+            ),
+        }
+        # 形如真实 A 股代码的裸 6 位数字，或带交易所后缀的代码
+        bare_six_digits = re.compile(r"(?<![0-9.,])[0-9]{6}(?![0-9.,])")
+        suffixed_code = re.compile(r"[0-9]{6}\.(?:SH|SZ|BJ)")
+
+        for relative, markers in demos.items():
+            path = ROOT / relative
+            self.assertTrue(path.is_file(), relative)
+            text = path.read_text(encoding="utf-8")
+
+            self.assertIn("全文虚构，仅用于展示输出结构", text, relative)
+            self.assertIn("全部是编造的", text, relative)
+            self.assertIn("没有任何真实市场数据，也没有任何投资建议", text, relative)
+            self.assertIn("2099", text, relative)
+
+            self.assertIsNone(bare_six_digits.search(text), f"{relative}: 疑似真实证券代码")
+            self.assertIsNone(suffixed_code.search(text), f"{relative}: 疑似真实证券代码")
+
+            for marker in markers:
+                self.assertIn(marker, text, f"{relative}: 缺结构标记 {marker}")
+
+        review = (ROOT / "examples/演示复盘.md").read_text(encoding="utf-8")
+        self.assertIn("不构成投资建议，不代下单，使用者风险自担", review)
+        self.assertIn("数据日：2099-03-19", review)
+
+        # 空样例是 fail-closed 契约的证据，不得被演示样例取代
+        empty = (ROOT / "examples/脱敏复盘输出.md").read_text(encoding="utf-8")
+        self.assertIn("未取得（离线示例）", empty)
+
     def test_ci_and_live_smoke_stay_separate(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         live = (ROOT / ".github/workflows/live-smoke.yml").read_text(encoding="utf-8")
