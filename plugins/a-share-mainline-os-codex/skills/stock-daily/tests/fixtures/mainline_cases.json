@@ -1,0 +1,91 @@
+[
+  {
+    "id": "fund_key_only_consecutive_outflow",
+    "kind": "retreat",
+    "note": "旧规则下纯资金符号条件可以单独扣动清仓；双钥匙下同一读数只进警戒。这是本次改造要挡住的主路径。",
+    "fund_key": true,
+    "price_key": false,
+    "standalone_price_trigger": false,
+    "actual_rule_version": "legacy_any",
+    "expected_actual_state": "retreat_review_required",
+    "counterfactual_rule_version": "double_key_v1",
+    "expected_counterfactual_state": "warning",
+    "evidence": "锚板块连续两个交易日主力净流出；当日收盘仍高于 MA20 与基线触发线，价格键未落下。"
+  },
+  {
+    "id": "fund_key_only_aggregate_window_turned_negative",
+    "kind": "retreat",
+    "note": "资金键换成聚合窗口口径（5 日转负 + 载体跌出名次）后结论不变——判定取决于键的类型，不取决于资金指标的具体写法。",
+    "fund_key": true,
+    "price_key": false,
+    "standalone_price_trigger": false,
+    "actual_rule_version": "legacy_any",
+    "expected_actual_state": "retreat_review_required",
+    "counterfactual_rule_version": "double_key_v1",
+    "expected_counterfactual_state": "warning",
+    "evidence": "锚板块 5 日聚合资金转负且龙头载体跌出行业前列；收盘高于触发线，价格键未落下。"
+  },
+  {
+    "id": "both_keys_met_same_day",
+    "kind": "retreat",
+    "note": "双钥匙同日成立，两套规则结论一致——收紧不影响真正该触发的场景。",
+    "fund_key": true,
+    "price_key": true,
+    "standalone_price_trigger": false,
+    "actual_rule_version": "legacy_any",
+    "expected_actual_state": "retreat_review_required",
+    "counterfactual_rule_version": "double_key_v1",
+    "expected_counterfactual_state": "retreat_review_required",
+    "evidence": "锚板块连续两日主力净流出，同日收盘跌破 MA20，资金键与价格键同时成立。"
+  },
+  {
+    "id": "price_key_alone_without_registration",
+    "kind": "retreat",
+    "note": "未预注册为单键条件的价格半边单独落下时，双钥匙判 maintain——防止把普通回调读成退潮。",
+    "fund_key": false,
+    "price_key": true,
+    "standalone_price_trigger": false,
+    "actual_rule_version": "legacy_any",
+    "expected_actual_state": "retreat_review_required",
+    "counterfactual_rule_version": "double_key_v1",
+    "expected_counterfactual_state": "maintain",
+    "evidence": "收盘跌破 MA20，但锚板块当日与 5 日主力资金仍为净流入，资金键未成立。"
+  },
+  {
+    "id": "registered_standalone_price_condition",
+    "kind": "retreat",
+    "note": "立项时预注册的纯价格条件仍可单键触发——双钥匙只约束资金侧，不豁免已写死的价格条件。",
+    "fund_key": false,
+    "price_key": false,
+    "standalone_price_trigger": true,
+    "actual_rule_version": "legacy_any",
+    "expected_actual_state": "retreat_review_required",
+    "counterfactual_rule_version": "double_key_v1",
+    "expected_counterfactual_state": "retreat_review_required",
+    "evidence": "主线页预注册「收盘跌破基线触发线即退潮」的单键价格条件，当日落下。"
+  },
+  {
+    "id": "nomination_shadow_execution_chain_unverified",
+    "kind": "nomination_shadow",
+    "note": "叙事成立但 A 股执行链没落点：涨停梯队零映射 + 无 A 股主体催化 + 窄成分锚板块却用全市场绝对名次。三面旗同时亮，证据判高风险。",
+    "limit_up_mapping_count": 0,
+    "a_share_catalyst_landing": false,
+    "board_member_count": 28,
+    "uses_absolute_rank_condition": true,
+    "next_day_falsification": "若次日涨停梯队仍零映射且无 A 股主体事件，则维持观察不建页",
+    "expected_flags": [
+      "zero_limit_up_mapping",
+      "no_a_share_catalyst_landing",
+      "narrow_absolute_rank_anchor"
+    ]
+  },
+  {
+    "id": "next_day_falsification_observed",
+    "kind": "next_day_falsification",
+    "note": "提名当轮预写的反向条件次日成立 → 影子结论是退回观察，不建页。仍为 shadow_only，不改变已执行的裁决。",
+    "preregistered": true,
+    "falsification_observed": true,
+    "expected_shadow_verdict": "withdraw_to_watch",
+    "evidence": "提名当轮预写「若次日资金反向流出且无行业级催化则不建页」，次日两项均成立。"
+  }
+]

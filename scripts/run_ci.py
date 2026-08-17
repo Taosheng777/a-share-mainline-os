@@ -25,11 +25,22 @@ def main() -> int:
         ("vault-template/.tests", "test_*.py"),
         ("plugins/a-share-mainline-os-codex/skills/stock-screener/tests", "test_screen.py"),
         ("plugins/a-share-mainline-os-codex/skills/stock-buddy/tests", "test_danger_scan.py"),
+        ("plugins/a-share-mainline-os-codex/skills/stock-daily/tests", "test_*.py"),
         ("plugins/a-share-mainline-os-claude/skills/stock-screener/tests", "test_screen.py"),
         ("plugins/a-share-mainline-os-claude/skills/stock-buddy/tests", "test_danger_scan.py"),
+        ("plugins/a-share-mainline-os-claude/skills/stock-daily/tests", "test_*.py"),
     )
     for directory, pattern in suites:
         run(sys.executable, "-m", "unittest", "discover", "-s", directory, "-p", pattern)
+    for platform in ("codex", "claude"):
+        skill = f"plugins/a-share-mainline-os-{platform}/skills/stock-daily"
+        run(
+            sys.executable,
+            f"{skill}/scripts/mainline_validation.py",
+            "cases",
+            "--fixtures",
+            f"{skill}/tests/fixtures/mainline_cases.json",
+        )
     run(sys.executable, "scripts/validate_manifests.py")
     run(sys.executable, "scripts/release_audit.py")
     run(sys.executable, "scripts/cold_start.py", "--skip-codex-plugin")
