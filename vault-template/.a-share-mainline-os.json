@@ -1,5 +1,5 @@
 {
   "schema_version": 1,
-  "template_version": "0.2.0-beta.1",
+  "template_version": "0.3.0-beta.1",
   "update_policy": "never-overwrite-user-vault"
 }

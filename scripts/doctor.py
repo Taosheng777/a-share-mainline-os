@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -63,6 +64,37 @@ def load_config(path: Path) -> tuple[dict | None, dict]:
     if not Path(vault_root).expanduser().is_absolute():
         return value, check(False, "vault_root 必须是绝对路径")
     return value, check(True, f"配置可解析：{path}")
+
+
+def board_cache_db_path() -> Path:
+    """与 stock-daily/scripts/board_fund_flow_cache.py 保持同一约定。"""
+    configured = os.environ.get("A_STOCK_DATA_HOME")
+    root = (
+        Path(configured).expanduser()
+        if configured
+        else Path.home() / "Library" / "Application Support" / "a-stock-data"
+    )
+    return root / "board_fund_flow.sqlite3"
+
+
+def board_cache_coverage() -> tuple[int, str]:
+    """只读统计板块逐日缓存覆盖的交易日数；任何异常都降级为 0，不抛栈。"""
+    path = board_cache_db_path()
+    if not path.is_file():
+        return 0, f"板块逐日缓存未建立（{path}）；依赖它的判定会写「本项未验证」，不阻塞复盘"
+    try:
+        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as conn:
+            days = conn.execute(
+                "SELECT COUNT(DISTINCT trade_date) FROM observations"
+            ).fetchone()[0]
+    except sqlite3.Error as error:
+        return 0, f"板块逐日缓存不可读：{error}"
+    if days == 0:
+        return 0, "板块逐日缓存为空；先跑一次 board_fund_flow_cache.py snapshot"
+    return days, (
+        f"板块逐日缓存覆盖 {days} 个交易日"
+        + ("" if days >= 120 else "；不足 120 日，立项误报回测与 MA20 价格键会写「本项未验证」")
+    )
 
 
 def inspect(platform: str, skills_root: Path, config_path: Path) -> dict:
@@ -122,6 +154,12 @@ def inspect(platform: str, skills_root: Path, config_path: Path) -> dict:
     checks["optional_wencai"] = check(
         bool(wencai),
         "已配置问财 CLI" if wencai else "未配置（可选，不阻塞）",
+        required=False,
+    )
+    cache_days, cache_detail = board_cache_coverage()
+    checks["optional_board_cache"] = check(
+        cache_days > 0,
+        cache_detail,
         required=False,
     )
 

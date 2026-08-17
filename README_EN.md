@@ -21,6 +21,10 @@
 ## What is different
 
 - A complete theme lifecycle with pre-registered failure conditions and an independent decline-review gate.
+- **Two-key exit conditions and a `warning` stage.** A liquidate-level failure condition must fire on both a *fund key* and a *price key*. A fund key alone only reaches `warning` — freeze additions, propose a raised stop for the user to confirm — and never triggers the liquidate rule. Pure fund-sign conditions have a high false-positive base rate, so they should not pull an irreversible trigger on their own.
+- **Deterministic, replayable classification.** The mechanical decision runs through a truth table in `mainline_validation.py`; a missing key returns `unverified` instead of silently reading as "not triggered". A structured case set ships with the repo, and changing the semantics requires updating the cases in the same change.
+- **The system looks back after it decides.** Decline-review criteria are pre-registered at theme creation, every decline decision enters a T+N ledger classified by those pre-registered criteria, and a revival sentinel flags a possible false kill when an archived theme's fund flow reverses. The sentinel is a prompt to re-evaluate, **not a buy signal**, and a "false kill" label never rolls back discipline actions already executed.
+- **Mandatory false-positive backtest** before a failure condition is accepted: replay the proposed liquidate-level combination over the last 60 trading days using the local board history cache; more than one hit means rewrite the condition.
 - A three-layer contract: user-owned discipline facts, explicit AI recommendations, and user-confirmed execution.
 - Anti-anchoring handoff between a mechanical candidate pool and independent formal nominations.
 - Explicit multi-source degradation and dual-source market-breadth reconciliation.
@@ -99,6 +103,8 @@ Both platform distributions are deterministically exported from the public canon
 ## Data and licensing boundary
 
 `a-stock-data` is the default external free data layer. `hithink-finance`, iWenCai, local iFinD evidence, and news or report search tools are optional user-installed adapters. Their absence must be reported explicitly and must never trigger a fallback to an author's private directory or invented data.
+
+`stock-daily/scripts/board_fund_flow_cache.py` is **first-party code in this repository**, not part of upstream `a-stock-data`. It stores per-day board net flows, the four order-size tiers, and board closing levels in a local SQLite database (location set by `A_STOCK_DATA_HOME`), which is what makes MA20 price keys, multi-day conditions, false-positive backtests, and T+N ledger backfill possible. **The cache accumulates day by day, so a fresh install has almost no history**; when coverage is insufficient, every dependent check is written as "not verified" rather than defaulting to "not triggered", and the rest of the review still completes.
 
 Original code and documentation in this repository are licensed under the [MIT License](LICENSE). Data interoperability uses Simon Lin's external [simonlin1212/a-stock-data](https://github.com/simonlin1212/a-stock-data), licensed under Apache-2.0. See [NOTICE](NOTICE) and the [dependency license audit](docs/依赖许可证清单.md).
 

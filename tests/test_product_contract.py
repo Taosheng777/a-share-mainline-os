@@ -43,6 +43,7 @@ class ProductContract(unittest.TestCase):
             ROOT / "CONTRIBUTING.md",
             ROOT / "docs/v0.1-beta-发布说明.md",
             ROOT / "docs/v0.2.0-beta.1-发布说明.md",
+            ROOT / "docs/v0.3.0-beta.1-发布说明.md",
             ROOT / "docs/升级与回滚.md",
             ROOT / ".github/ISSUE_TEMPLATE/installation.yml",
             ROOT / ".github/ISSUE_TEMPLATE/feature.yml",

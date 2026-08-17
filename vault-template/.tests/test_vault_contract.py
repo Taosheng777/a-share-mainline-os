@@ -52,14 +52,48 @@ class VaultTemplateContract(unittest.TestCase):
             "type: mainline-template",
             "阶段: 提名",
             "死亡条件:",
+            "判定规则版本: double_key_v1",
             "## ■ 状态头",
+            "## ■ 退潮复核判据（预注册）",
             "## ■ 叙事",
+            "## ■ 立项影子观察（`shadow_only`）",
             "## ■ 证据流（按日增量）",
             "## ■ 载体清单",
+            "### 载体排序 T+N 跟踪",
             "## ■ 参考条件位",
             "## ■ AI 决策建议（金融专家模式）",
             "## ■ 我的操作",
+            "## ■ 退潮判定 T+N 复核（退潮后建档，逐日回填）",
             "## ■ 归档复盘（退潮后填）",
+        ):
+            self.assertIn(phrase, text)
+
+    def test_mainline_lifecycle_carries_warning_stage_and_double_key(self):
+        readme = (ROOT / "05-主线追踪/README.md").read_text(encoding="utf-8")
+        for phrase in (
+            "提名 → 启动 → 发酵 → 分歧 → 警戒 → 退潮 → 归档",
+            "资金键单独成立只进警戒",
+            "不联动纪律①",
+            "立项误报回测是强制项",
+            "判定规则版本: double_key_v1",
+            "复活哨",
+        ):
+            self.assertIn(phrase, readme)
+
+        template = (ROOT / "05-主线追踪/_主线页模板.md").read_text(encoding="utf-8")
+        self.assertIn("死亡条件 · 清仓级", template)
+        self.assertIn("死亡条件 · 警戒级", template)
+        self.assertIn("禁止裸用全市场绝对额排名", template)
+
+    def test_exit_ledger_preregisters_classification_and_counting(self):
+        text = (ROOT / "05-主线追踪/归档/_退潮判定台账.md").read_text(encoding="utf-8")
+        for phrase in (
+            "type: mainline-exit-ledger",
+            "## ■ 分类判据（预注册 · 定稿即冻结）",
+            "## ■ 计数口径",
+            "不得为了归类另换指标",
+            "剔除窗口内最负一日",
+            "不构成买回信号",
         ):
             self.assertIn(phrase, text)
 
