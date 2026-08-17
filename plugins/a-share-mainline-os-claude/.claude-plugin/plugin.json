@@ -1,6 +1,6 @@
 {
   "name": "a-share-mainline-os",
-  "description": "A 股主线生命周期研究与决策支持 Skills：复盘、载体筛选与双档分析。",
+  "description": "收盘后一页复盘：今天什么环境、你跟的主线还活着吗、持仓有没有踩到你自己定的纪律线。只提示，不下单。",
   "version": "0.3.0-beta.1",
   "author": {
     "name": "Taosheng777",

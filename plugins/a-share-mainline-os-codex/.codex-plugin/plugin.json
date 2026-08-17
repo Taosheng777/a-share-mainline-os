@@ -1,7 +1,7 @@
 {
   "name": "a-share-mainline-os",
   "version": "0.3.0-beta.1",
-  "description": "A 股主线生命周期研究与决策支持 Skills：复盘、载体筛选与双档分析。",
+  "description": "收盘后一页复盘：今天什么环境、你跟的主线还活着吗、持仓有没有踩到你自己定的纪律线。只提示，不下单。",
   "author": {
     "name": "Taosheng777",
     "url": "https://github.com/Taosheng777"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "A 股主线研究",
-    "shortDescription": "复盘、筛选载体并对主线与持仓做可审计分析",
-    "longDescription": "围绕 A 股主线生命周期完成复盘、载体筛选、主线论证和持仓体检。系统将纪律、AI 建议与用户执行分层，不代下单，并在输出中保留数据来源和数据日。",
+    "shortDescription": "收盘后一页复盘：环境 · 主线存亡 · 持仓纪律对照",
+    "longDescription": "围绕「主线」组织 A 股复盘、载体筛选与持仓分析。每个交易日收盘后跑五区复盘，逐条核对你预先写死的死亡条件与纪律线；主线退潮走「资金键 + 价格键」双钥匙，资金键单独成立只进警戒、不联动清仓。纪律阈值只从你自己的纪律卡运行时读取，数字带来源与数据日，取不到就写「未取得」。不代下单，不构成投资建议。",
     "developerName": "Taosheng777",
     "category": "Education & Research",
     "capabilities": [

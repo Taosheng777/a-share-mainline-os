@@ -6,9 +6,97 @@
 
 [中文](README.md)
 
-`a-share-mainline-os` is a Claude Code and Codex Skill suite for researching China A-share market themes. It organizes daily review, vehicle screening, and position analysis around a theme lifecycle while separating user-owned rules, AI recommendations, and user execution.
+**After each trading day closes, one conversation gets you a one-page review**: what regime today was, whether the themes you follow are still alive, and whether your positions crossed **the rules you wrote yourself**.
 
-> For research and decision support only. The provider is not a licensed securities investment advisory institution. Neither this project nor its output constitutes investment advice, and it does not place orders. Users assume all risk. Data sources and as-of dates are those reported by each runtime output.
+It is a Claude Code and Codex Skill suite for China A-share research, organized around "themes" as first-class objects. **It only tells you; it never trades.** Every number carries a source and an as-of date, and anything unavailable stays written as unavailable.
+
+## A day looks like this
+
+```text
+You:  Review the latest trading day
+  ↓
+System: runs five sections — regime · theme status · nominations ·
+        position check · tomorrow's watchlist
+        checking each failure condition and rule threshold you pre-registered
+  ↓
+You get: a ≤40-line review page + the items that need your decision (if any)
+         theme pages get an incremental evidence trail and a git snapshot
+  ↓
+The call is yours — the system gives a recommendation, its basis, and the
+counter-argument; you confirm and place any trade yourself
+```
+
+## What the output looks like
+
+Excerpts from the [full demo day](examples/演示复盘.md) (**entirely fictional**; the demo files are in Chinese, as is the tool's output):
+
+> [!abstract] Range-bound rotation · indices flat, funds concentrating into few sectors
+> **The one thing needing your decision today**: `DEMO001` broke below its stop; rule ② fired.
+
+> [!danger] Rule ② fired · your decision needed
+> `DEMO001` closed at **1.238** ≤ stop **1.250**. The system only flags this; **it does not place orders**.
+
+> [!warning] Theme "Example Theme A" moved to `warning` · additions frozen
+> Fund key met (anchor board saw two consecutive days of net outflow), **price key not met** (close 1,842.60 > MA20 1,795.20).
+> Under the two-key rule this is `warning`, **not a decline — the liquidate rule does not fire**.
+
+It also argues against itself. In the same review, one of its own nominations is flagged:
+
+> ⚠️ **A-share execution chain unverified; evidence is high-risk**: zero limit-up mapping and no A-share catalyst landing occurred together.
+> This nomination **must not** be phrased as "A-share follow-through confirmed".
+
+📄 Two complete samples: [demo review](examples/演示复盘.md) (all five sections filled) · [demo theme page](examples/演示主线页.md) (two-key status header, two-layer evidence trail, vehicle rank correlation)
+
+## What it will not do
+
+| Boundary | What it means |
+|---|---|
+| **No orders** | No order generation, no account access. A trigger produces a prompt and a recommendation; execution is always your action. |
+| **No invented data** | Every number carries a source and as-of date. If all three channels fail, it writes "unavailable"; a check missing its inputs is written "not verified" and is **never defaulted to "not triggered"**. |
+| **Your rules, not its rules** | The three discipline thresholds are read at runtime from your own rule card, never hardcoded. Leave them blank and the system writes "cannot determine". |
+| **No investment advice** | The provider is not a licensed securities investment advisory institution. Neither this project nor its output constitutes investment advice. Users assume all risk. |
+| **No scheduled jobs** | It runs only when you trigger it. It never creates cron jobs, background monitors, or automation. |
+
+## How a theme lives and dies
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    state "Nominated" as nom
+    state "Launch" as launch
+    state "Building" as build
+    state "Divergence" as diverge
+    state "Warning" as warn
+    state "Decline" as decline
+    state "Archived" as archive
+
+    [*] --> nom
+    nom --> launch: only after you say "follow"
+    launch --> build
+    build --> diverge
+    diverge --> build: signals recover
+    build --> warn: fund key alone
+    diverge --> warn: fund key alone
+    warn --> build: 2 days reversal, close above trigger day
+    warn --> decline: price key drops
+    build --> decline: both keys, same day
+    diverge --> decline: both keys, same day
+    decline --> archive: independent review confirms
+    decline --> warn: review calls it a false alarm
+    archive --> [*]
+    archive --> nom: revival sentinel, re-enter as a new theme
+
+    note right of warn
+        Freeze additions, propose a raised stop.
+        The liquidate rule does not fire.
+    end note
+    note right of archive
+        Enters the T+N ledger.
+        Classified at T+7, final call at T+15.
+    end note
+```
+
+**Why there is a `warning` stage in the middle.** Pure fund-sign conditions (N consecutive days of net outflow, an aggregate window turning negative) have a high false-positive base rate across board history, and forward returns after they fire are barely distinguishable from when they do not — the signal carries almost no information. Letting one pull an irreversible trigger installs an alarm that misfires every few days. The real cost is not any single false kill; it is that people stop trusting the trigger exactly when it matters. So the two-key rule is a **safety structure, not a validated predictor** — it makes no claim to better prediction accuracy.
 
 ## Skills
 
@@ -20,16 +108,14 @@
 
 ## What is different
 
-- A complete theme lifecycle with pre-registered failure conditions and an independent decline-review gate.
-- **Two-key exit conditions and a `warning` stage.** A liquidate-level failure condition must fire on both a *fund key* and a *price key*. A fund key alone only reaches `warning` — freeze additions, propose a raised stop for the user to confirm — and never triggers the liquidate rule. Pure fund-sign conditions have a high false-positive base rate, so they should not pull an irreversible trigger on their own.
+- **Failure conditions are written first, then backtested for false positives.** Before a condition is accepted, replay the proposed liquidate-level combination over the last 60 trading days using the local board history cache; more than one hit means rewrite it. No rewriting rules after the fact to chase price.
 - **Deterministic, replayable classification.** The mechanical decision runs through a truth table in `mainline_validation.py`; a missing key returns `unverified` instead of silently reading as "not triggered". A structured case set ships with the repo, and changing the semantics requires updating the cases in the same change.
-- **The system looks back after it decides.** Decline-review criteria are pre-registered at theme creation, every decline decision enters a T+N ledger classified by those pre-registered criteria, and a revival sentinel flags a possible false kill when an archived theme's fund flow reverses. The sentinel is a prompt to re-evaluate, **not a buy signal**, and a "false kill" label never rolls back discipline actions already executed.
-- **Mandatory false-positive backtest** before a failure condition is accepted: replay the proposed liquidate-level combination over the last 60 trading days using the local board history cache; more than one hit means rewrite the condition.
-- A three-layer contract: user-owned discipline facts, explicit AI recommendations, and user-confirmed execution.
-- Anti-anchoring handoff between a mechanical candidate pool and independent formal nominations.
-- Explicit multi-source degradation and dual-source market-breadth reconciliation.
-- Zero catch-up debt after interruptions: resume from the latest valid trading day without inventing missing daily logs.
-- Every material market number carries a source and as-of date; missing evidence remains missing.
+- **The system looks back after it decides.** Decline-review criteria are pre-registered at theme creation (and must include at least one non-fund dimension, or the review shares a source with the trigger), every decline decision enters a T+N ledger, and a revival sentinel flags a possible false kill when an archived theme's fund flow reverses. The sentinel is a prompt to re-evaluate, **not a buy signal**, and a "false kill" label never rolls back discipline actions already executed.
+- **A three-layer contract**: user-owned discipline facts, explicit AI recommendations, and user-confirmed execution.
+- **Anti-anchoring handoff** between a mechanical candidate pool and independent formal nominations.
+- **Explicit multi-source degradation** and dual-source market-breadth reconciliation; missing evidence remains missing.
+
+Full rules are in the [theme lifecycle](docs/主线生命周期.md) and [system design](docs/系统设计.md) documents (Chinese).
 
 ## Quick start
 
