@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "workflow": "astra_full_v1",
+  "allowed_models": ["gpt-6-astra", "claude-opus-5-5"],
+  "method_version": "research-journal-v1",
+  "contract": "00-系统/研究运行合同.md",
+  "validation_status": "00-系统/研究验证状态.json",
+  "journal": "09-研究记录/连续决策.jsonl",
+  "shadow_journal": "09-研究记录/AI影子.jsonl",
+  "baseline_journals": {
+    "hold": "09-研究记录/持有基线.jsonl",
+    "trend": "09-研究记录/趋势基线.jsonl"
+  }
+}

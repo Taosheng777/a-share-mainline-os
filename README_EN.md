@@ -10,6 +10,10 @@
 
 It is a Claude Code and Codex Skill suite for China A-share research, organized around "themes" as first-class objects. **It only tells you; it never trades.** Every number carries a source and an as-of date, and anything unavailable stays written as unavailable.
 
+## 0.4 update
+
+Optional append-only research journals preserve evidence timing and reasons for changed decisions. Same-asset shadow comparisons remain research simulations, without profitability claims. The package now ships its breadth checker and complete industry ranking helper; data-day and pagination checks reject incomplete or stale results. Research setup is opt-in; see the [Chinese setup guide](docs/研究运行层.md). The external data Skill is pinned to v3.9.0 and is not vendored.
+
 ## A day looks like this
 
 ```text
@@ -52,7 +56,7 @@ It also argues against itself. In the same review, one of its own nominations is
 | Boundary | What it means |
 |---|---|
 | **No orders** | No order generation, no account access. A trigger produces a prompt and a recommendation; execution is always your action. |
-| **No invented data** | Every number carries a source and as-of date. If all three channels fail, it writes "unavailable"; a check missing its inputs is written "not verified" and is **never defaulted to "not triggered"**. |
+| **No invented data** | Every number carries a source and as-of date. If all supported and authorized channels fail, it writes "unavailable"; a check missing its inputs is written "not verified" and is **never defaulted to "not triggered"**. |
 | **Your rules, not its rules** | The three discipline thresholds are read at runtime from your own rule card, never hardcoded. Leave them blank and the system writes "cannot determine". |
 | **No investment advice** | The provider is not a licensed securities investment advisory institution. Neither this project nor its output constitutes investment advice. Users assume all risk. |
 | **No scheduled jobs** | It runs only when you trigger it. It never creates cron jobs, background monitors, or automation. |
@@ -170,7 +174,7 @@ python3 adapters/shared/install_a_stock_data.py \
   --target "$HOME/.codex/skills/a-stock-data"
 ```
 
-Claude Code users should target `$HOME/.claude/skills/a-stock-data`. The installer pins and verifies upstream `v3.6.1`, its commit, `SKILL.md` digest, and Apache-2.0 license. This repository does not vendor or relicense upstream source.
+Claude Code users should target `$HOME/.claude/skills/a-stock-data`. The installer pins and verifies upstream `v3.9.0`, its commit, `SKILL.md` digest, and Apache-2.0 license. This repository does not vendor or relicense upstream source.
 
 Start a new task with prompts such as:
 

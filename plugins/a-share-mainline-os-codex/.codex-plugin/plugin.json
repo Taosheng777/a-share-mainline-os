@@ -1,6 +1,6 @@
 {
   "name": "a-share-mainline-os",
-  "version": "0.3.0-beta.1",
+  "version": "0.4.0-beta.1",
   "description": "收盘后一页复盘：今天什么环境、你跟的主线还活着吗、持仓有没有踩到你自己定的纪律线。只提示，不下单。",
   "author": {
     "name": "Taosheng777",

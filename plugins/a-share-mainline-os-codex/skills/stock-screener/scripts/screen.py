@@ -29,13 +29,16 @@ SKILLS_ROOT = os.path.dirname(
 _CONFIG_CACHE = None
 
 
-def compliance_notice(sources, data_date):
-    """生成用户可见的统一运行时合规声明。"""
+def compliance_notice(sources, data_date, audience=None):
+    """公开分发默认保留声明；本人本地输出可显式选 personal。"""
+    audience = audience or os.environ.get("ASM_OUTPUT_AUDIENCE", "public")
+    if audience not in ("personal", "public"):
+        raise ValueError("输出对象须为 personal 或 public")
+    legal = ("本工具仅用于研究与决策支持；提供方非持牌证券投资咨询机构，"
+             "本工具及其输出不构成投资建议，不代下单，使用者风险自担。") if audience == "public" else ""
     source_text = str(sources or "未取得（运行时未报告）")
     date_text = str(data_date or "未取得")
-    return (
-        "本工具仅用于研究与决策支持；提供方非持牌证券投资咨询机构，"
-        "本工具及其输出不构成投资建议，不代下单，使用者风险自担。"
+    return legal + (
         "数据来源：%s；数据日：%s，均以本次运行输出为准。"
         % (source_text, date_text)
     )

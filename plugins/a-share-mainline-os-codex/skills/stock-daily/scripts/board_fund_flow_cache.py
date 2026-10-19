@@ -1263,11 +1263,13 @@ def fetch_clist_snapshot(
             body = response.json()
             data = body.get("data") or {}
             items = data.get("diff") or []
+            raw_total = data.get("total")
+            if isinstance(raw_total, bool) or not isinstance(raw_total, int) or raw_total <= 0:
+                raise SourceUnavailableError("clist 缺少有效 total，无法验证完整截面")
             if reported_total is None:
-                raw_total = data.get("total")
-                if raw_total is None:
-                    raise SourceUnavailableError("clist 响应缺少 total，无法验证分页完整性")
-                reported_total = int(raw_total)
+                reported_total = raw_total
+            elif raw_total != reported_total:
+                raise SourceUnavailableError("clist 分页总数变化，拒绝登记完整截面")
             if not items:
                 break
             all_items.extend(items)
@@ -1307,6 +1309,12 @@ def sync_clist_snapshot(
         )
     all_rows = [row for rows in fetched.values() for row in rows]
     store_observations(db_path, all_rows)
+    if not allow_intraday:
+        from industry_ranking import record_snapshot_coverage
+        for board_type, rows in fetched.items():
+            record_snapshot_coverage(db_path, board_type, trade_date,
+                                     [row["board_code"] for row in rows],
+                                     "fetch_clist_snapshot: full pagination and exact trade_date verified")
     return {board_type: len(rows) for board_type, rows in fetched.items()}
 
 

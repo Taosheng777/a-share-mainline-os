@@ -13,9 +13,9 @@ from pathlib import Path
 
 
 UPSTREAM = "https://github.com/simonlin1212/a-stock-data.git"
-VERSION = "v3.6.1"
-COMMIT = "3a3149dedbe30cda58b5c94387039d7e707cedcd"
-SKILL_SHA256 = "875868520ab25653aebbcee720891b99d87ea41b21d087175f98703009e9cd69"
+VERSION = "v3.9.0"
+COMMIT = "981524aac9eb78caf38a3fcd21099241efee1059"
+SKILL_SHA256 = "ded9e4e7695cc92ee503876c10eedef1d4df1c5d079a5d53a41d6d415f2fb6af"
 QUOTE_URL = "https://qt.gtimg.cn/q=sh000001"
 
 
